@@ -79,18 +79,20 @@ RUN apt-get -y install \
 
 RUN pip3 install torch
 
-# RUN apt-get install libgl1-mesa-dev libgl1-mesa-glx xvfb -y --no-install-recommends \
-#   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false 
+RUN apt-get install -y xvfb libgl1-mesa-dev libgl1-mesa-glx
 
 RUN apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 USER root
-# COPY set_xvfb.sh /home/fenics/
-# RUN chmod 777 /home/fenics/set_xvfb.sh
+COPY set_xvfb.sh /home/fenics/
+RUN chmod +x /home/fenics/set_xvfb.sh
 COPY pip.conf /home/fenics/.config/pip/
-USER fenics
+
 ENV FENICS_HOME /home/fenics
+ENV DISPLAY=:99
+
+USER fenics
 RUN touch $FENICS_HOME/.sudo_as_admin_successful && \
     mkdir $FENICS_HOME/shared
 VOLUME /home/fenics/shared
@@ -101,6 +103,5 @@ COPY WELCOME $FENICS_HOME/WELCOME
 WORKDIR /home/fenics
 USER fenics
 
-# RUN /home/fenics/set_xvfb.sh
-ENTRYPOINT ["/bin/bash","-l","-c"]
+ENTRYPOINT ["/home/fenics/set_xvfb.sh"]
 CMD ["/bin/bash","-i"]
