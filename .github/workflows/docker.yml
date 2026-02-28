@@ -27,8 +27,8 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: suro4ek/fenics:arm
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=suro4ek/fenics:arm-cache
+          cache-to: type=registry,ref=suro4ek/fenics:arm-cache,mode=max
 
     build-vscode:
       runs-on: ubuntu-latest
@@ -51,5 +51,5 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: suro4ek/fenics:arm-vscode
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=suro4ek/fenics:arm-vscode-cache
+          cache-to: type=registry,ref=suro4ek/fenics:arm-vscode-cache,mode=max
