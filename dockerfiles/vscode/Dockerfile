@@ -8,6 +8,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Python language server dependencies
+RUN pip3 install jedi-language-server pylsp-mypy python-lsp-server
+
 # Install code-server
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
@@ -23,7 +26,7 @@ RUN chown -R fenics:fenics /home/fenics/.config
 USER fenics
 WORKDIR /home/fenics
 
-# Install Python extension
+# Install Python extension (Pylance alternative for code-server)
 RUN code-server --install-extension ms-python.python || true
 
 EXPOSE 8080
