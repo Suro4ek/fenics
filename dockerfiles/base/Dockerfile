@@ -1,14 +1,7 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
-# RUN echo "deb http://old-releases.ubuntu.com/ubuntu/ lunar-updates main universe multiverse" > /etc/apt/sources.list && \
-#     echo "deb http://old-releases.ubuntu.com/ubuntu/ lunar main universe multiverse" >> /etc/apt/sources.list
-
-# RUN apt-get update && \
-#     apt-get install -y software-properties-common gnupg curl && \
-#     add-apt-repository "deb http://dev.ubuntu.com/ubuntu focal universe"
-    # apt-get dist-upgrade -y
 ARG DEBIAN_FRONTEND=noninteractive
-# Get Ubuntu updates
+
 USER root
 RUN apt-get update && \
     apt-get upgrade -y -o Dpkg::Options::="--force-confold" && \
@@ -69,23 +62,50 @@ WORKDIR /tmp
 # apt-get clean && \
 # rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN apt-get -y install python3 fenics build-essential software-properties-common curl
+RUN apt-get -y install python3 python3-pip build-essential
 
-# Install Python 3.10 from deadsnakes PPA
-RUN add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get install -y python3.10 python3.10-venv python3.10-distutils
-
-# Set Python 3.10 as default
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
-
-# Install pip for Python 3.10
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+# Install FEniCS dependencies
+RUN apt-get -y install \
+    cmake \
+    git \
+    pkg-config \
+    libboost-all-dev \
+    libeigen3-dev \
+    libopenmpi-dev \
+    openmpi-bin \
+    libhdf5-openmpi-dev \
+    libpetsc-real-dev \
+    libslepc-real-dev \
+    pybind11-dev
 
 # Install python dependencies
-RUN apt-get -y install gmsh
-RUN pip3 install scipy matplotlib torch
+RUN apt-get -y install \
+    python3-scipy \
+    python3-matplotlib \
+    python3-numpy \
+    python3-mpi4py \
+    python3-petsc4py \
+    python3-slepc4py \
+    gmsh
+
+# Install FEniCS 2019 from pip
+RUN pip3 install --break-system-packages fenics-ffc fenics-ufl fenics-fiat fenics-dijitso
+
+# Build DOLFIN from source
+WORKDIR /tmp
+RUN git clone --branch 2019.1.0.post0 https://bitbucket.org/fenics-project/dolfin.git && \
+    cd dolfin && \
+    mkdir build && cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local .. && \
+    make -j$(nproc) && \
+    make install && \
+    cd ../python && \
+    pip3 install --break-system-packages . && \
+    cd /tmp && rm -rf dolfin
+
+RUN ldconfig
+
+RUN pip3 install --break-system-packages torch
 
 RUN apt-get install -y xvfb libgl1-mesa-dev libgl1-mesa-glx
 

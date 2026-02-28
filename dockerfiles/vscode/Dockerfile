@@ -18,7 +18,7 @@ RUN mkdir -p /home/fenics/.config/code-server \
 # Configure code-server
 RUN echo 'bind-addr: 0.0.0.0:8080\nauth: password\npassword: fenics\ncert: false' > /home/fenics/.config/code-server/config.yaml
 
-# VS Code settings - use Jedi language server
+# Enable Jedi language server
 RUN echo '{"python.languageServer": "Jedi"}' > /home/fenics/.local/share/code-server/User/settings.json
 
 # Fix permissions
