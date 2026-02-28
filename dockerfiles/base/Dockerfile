@@ -89,7 +89,7 @@ RUN apt-get -y install \
     gmsh
 
 # Install FEniCS 2019 from pip
-RUN pip3 install --break-system-packages fenics-ffc fenics-ufl fenics-fiat fenics-dijitso
+RUN pip3 install fenics-ffc fenics-ufl fenics-fiat fenics-dijitso
 
 # Build DOLFIN from source
 WORKDIR /tmp
@@ -100,12 +100,12 @@ RUN git clone --branch 2019.1.0.post0 https://bitbucket.org/fenics-project/dolfi
     make -j$(nproc) && \
     make install && \
     cd ../python && \
-    pip3 install --break-system-packages . && \
+    pip3 install . && \
     cd /tmp && rm -rf dolfin
 
 RUN ldconfig
 
-RUN pip3 install --break-system-packages torch
+RUN pip3 install torch
 
 RUN apt-get install -y xvfb libgl1-mesa-dev libgl1-mesa-glx
 
