@@ -73,10 +73,11 @@ RUN apt-get -y install python3 fenics build-essential
 # install all python dependencies
 RUN apt-get -y install \
                    python3-pip \
-                #    python3-vedo \ 
                    python3-scipy \
-                #    python3-torch \
-                   python3-matplotlib
+                   python3-matplotlib \
+                   gmsh
+
+RUN pip3 install torch
 
 # RUN apt-get install libgl1-mesa-dev libgl1-mesa-glx xvfb -y --no-install-recommends \
 #   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false 
