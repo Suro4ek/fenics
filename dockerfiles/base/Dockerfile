@@ -69,15 +69,23 @@ WORKDIR /tmp
 # apt-get clean && \
 # rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN apt-get -y install python3 fenics build-essential
-# install all python dependencies
-RUN apt-get -y install \
-                   python3-pip \
-                   python3-scipy \
-                   python3-matplotlib \
-                   gmsh
+RUN apt-get -y install python3 fenics build-essential software-properties-common curl
 
-RUN pip3 install torch
+# Install Python 3.10 from deadsnakes PPA
+RUN add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y python3.10 python3.10-venv python3.10-distutils
+
+# Set Python 3.10 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
+
+# Install pip for Python 3.10
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+
+# Install python dependencies
+RUN apt-get -y install gmsh
+RUN pip3 install scipy matplotlib torch
 
 RUN apt-get install -y xvfb libgl1-mesa-dev libgl1-mesa-glx
 
