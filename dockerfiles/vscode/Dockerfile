@@ -18,8 +18,8 @@ RUN mkdir -p /home/fenics/.config/code-server \
 # Configure code-server
 RUN echo 'bind-addr: 0.0.0.0:8080\nauth: password\npassword: fenics\ncert: false' > /home/fenics/.config/code-server/config.yaml
 
-# Enable Jedi language server
-RUN echo '{"python.languageServer": "Jedi"}' > /home/fenics/.local/share/code-server/User/settings.json
+# Configure Python settings
+RUN echo '{"python.languageServer": "Jedi", "python.defaultInterpreterPath": "/usr/bin/python3", "python.pythonPath": "/usr/bin/python3"}' > /home/fenics/.local/share/code-server/User/settings.json
 
 # Fix permissions
 RUN chown -R fenics:fenics /home/fenics/.config /home/fenics/.local

@@ -101,6 +101,8 @@ RUN git clone --depth 1 --branch 2019.1.0.post0 https://bitbucket.org/fenics-pro
     make install && \
     cd ../python && \
     pip3 install . && \
+    cp -r /tmp/dolfin/python/demo /home/fenics/demo && \
+    chown -R fenics:fenics /home/fenics/demo && \
     cd /tmp && rm -rf dolfin
 
 RUN ldconfig
