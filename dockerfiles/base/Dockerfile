@@ -64,29 +64,21 @@ WORKDIR /tmp
 
 RUN apt-get -y install python3 python3-pip build-essential
 
-# Install FEniCS dependencies
-RUN apt-get -y install \
-    cmake \
-    git \
-    pkg-config \
-    libboost-all-dev \
-    libeigen3-dev \
-    libopenmpi-dev \
-    openmpi-bin \
-    libhdf5-openmpi-dev \
-    libpetsc-real-dev \
-    libslepc-real-dev \
-    pybind11-dev
+# Install FEniCS dependencies (split to avoid QEMU segfaults)
+RUN apt-get -y install cmake git pkg-config
+RUN apt-get -y install libboost-all-dev
+RUN apt-get -y install libeigen3-dev
+RUN apt-get -y install libopenmpi-dev openmpi-bin
+RUN apt-get -y install libhdf5-openmpi-dev
+RUN apt-get -y install libpetsc-real-dev
+RUN apt-get -y install libslepc-real-dev
+RUN apt-get -y install pybind11-dev
 
-# Install python dependencies
-RUN apt-get -y install \
-    python3-scipy \
-    python3-matplotlib \
-    python3-numpy \
-    python3-mpi4py \
-    python3-petsc4py \
-    python3-slepc4py \
-    gmsh
+# Install python dependencies (split to avoid QEMU segfaults)
+RUN apt-get -y install python3-scipy python3-matplotlib python3-numpy
+RUN apt-get -y install python3-mpi4py
+RUN apt-get -y install python3-petsc4py python3-slepc4py
+RUN apt-get -y install gmsh
 
 # Install FEniCS 2019 from pip
 RUN pip3 install fenics-ffc fenics-ufl fenics-fiat fenics-dijitso
