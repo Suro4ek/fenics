@@ -83,12 +83,17 @@ RUN apt-get -y install gmsh
 # Install FEniCS 2019 from pip
 RUN pip3 install fenics-ffc fenics-ufl fenics-fiat fenics-dijitso
 
-# Build DOLFIN from source
+# Build DOLFIN from source (disable Trilinos, ParMETIS, SUNDIALS)
 WORKDIR /tmp
-RUN git clone --branch 2019.1.0.post0 https://bitbucket.org/fenics-project/dolfin.git && \
+RUN git clone --depth 1 --branch 2019.1.0.post0 https://bitbucket.org/fenics-project/dolfin.git && \
     cd dolfin && \
     mkdir build && cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local .. && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
+          -DDOLFIN_ENABLE_TRILINOS=OFF \
+          -DDOLFIN_ENABLE_PARMETIS=OFF \
+          -DDOLFIN_ENABLE_SUNDIALS=OFF \
+          -DDOLFIN_ENABLE_TESTING=OFF \
+          .. && \
     make -j$(nproc) && \
     make install && \
     cd ../python && \
