@@ -62,31 +62,34 @@ WORKDIR /tmp
 # apt-get clean && \
 # rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN apt-get -y install python3 python3-pip build-essential
+# Install all dependencies in one layer
+RUN apt-get -y install \
+    python3 python3-pip build-essential \
+    cmake git pkg-config \
+    libboost-all-dev \
+    libeigen3-dev \
+    libopenmpi-dev openmpi-bin \
+    libhdf5-openmpi-dev \
+    libpetsc-real-dev \
+    libslepc-real-dev \
+    pybind11-dev \
+    python3-scipy python3-matplotlib python3-numpy \
+    python3-mpi4py \
+    python3-petsc4py python3-slepc4py \
+    nano \
+    gmsh
 
-# Install FEniCS dependencies (split to avoid QEMU segfaults)
-RUN apt-get -y install cmake git pkg-config
-RUN apt-get -y install libboost-all-dev
-RUN apt-get -y install libeigen3-dev
-RUN apt-get -y install libopenmpi-dev openmpi-bin
-RUN apt-get -y install libhdf5-openmpi-dev
-RUN apt-get -y install libpetsc-real-dev
-RUN apt-get -y install libslepc-real-dev
-RUN apt-get -y install pybind11-dev
-
-# Install python dependencies (split to avoid QEMU segfaults)
-RUN apt-get -y install python3-scipy python3-matplotlib python3-numpy
-RUN apt-get -y install python3-mpi4py
-RUN apt-get -y install python3-petsc4py python3-slepc4py
-RUN apt-get -y install gmsh
-
-# Install FEniCS 2019 from pip
-RUN pip3 install fenics-ffc fenics-ufl fenics-fiat fenics-dijitso
+# Install FEniCS 2019 from pip with compatible sympy version
+RUN pip3 install 'sympy<1.12' fenics-ffc fenics-ufl fenics-fiat fenics-dijitso
 
 # Build DOLFIN from source (disable Trilinos, ParMETIS, SUNDIALS)
 WORKDIR /tmp
 RUN git clone --depth 1 --branch 2019.1.0.post0 https://bitbucket.org/fenics-project/dolfin.git && \
     cd dolfin && \
+    # Fix missing includes for GCC 11+ / Boost 1.74+ compatibility
+    sed -i '1i #include <algorithm>' dolfin/geometry/IntersectionConstruction.cpp && \
+    sed -i '1i #include <algorithm>' dolfin/mesh/MeshFunction.h && \
+    sed -i 's|boost/detail/endian.hpp|boost/endian/arithmetic.hpp|g' dolfin/io/VTKFile.cpp dolfin/io/VTKWriter.cpp && \
     mkdir build && cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
           -DDOLFIN_ENABLE_TRILINOS=OFF \
@@ -102,19 +105,16 @@ RUN git clone --depth 1 --branch 2019.1.0.post0 https://bitbucket.org/fenics-pro
 
 RUN ldconfig
 
-RUN pip3 install torch
-
-RUN apt-get install -y xvfb libgl1-mesa-dev libgl1-mesa-glx
-
-RUN apt-get clean && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get install -y xvfb libgl1-mesa-dev libgl1-mesa-glx && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 USER root
 COPY set_xvfb.sh /home/fenics/
 RUN chmod +x /home/fenics/set_xvfb.sh
 COPY pip.conf /home/fenics/.config/pip/
 
-ENV FENICS_HOME /home/fenics
+ENV FENICS_HOME=/home/fenics
 ENV DISPLAY=:99
 
 USER fenics

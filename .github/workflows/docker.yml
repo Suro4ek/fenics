@@ -11,8 +11,6 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - uses: actions/checkout@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub Container Registry
@@ -35,8 +33,6 @@ jobs:
       needs: build-base
       steps:
       - uses: actions/checkout@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub Container Registry
@@ -53,3 +49,25 @@ jobs:
           tags: suro4ek/fenics:arm-vscode
           cache-from: type=registry,ref=suro4ek/fenics:arm-vscode-cache
           cache-to: type=registry,ref=suro4ek/fenics:arm-vscode-cache,mode=max
+
+    build-torch:
+      runs-on: ubuntu-latest
+      needs: build-base
+      steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub Container Registry
+        uses: docker/login-action@v3
+        with:
+          username: suro4ek
+          password: ${{ secrets.TOKEN }}
+      - name: Build and push torch
+        uses: docker/build-push-action@v5
+        with:
+          context: ./dockerfiles/torch
+          platforms: linux/arm64
+          push: true
+          tags: suro4ek/fenics:arm-torch
+          cache-from: type=registry,ref=suro4ek/fenics:arm-torch-cache
+          cache-to: type=registry,ref=suro4ek/fenics:arm-torch-cache,mode=max
