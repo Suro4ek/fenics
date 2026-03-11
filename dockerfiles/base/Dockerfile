@@ -77,7 +77,13 @@ RUN apt-get -y install \
     python3-mpi4py \
     python3-petsc4py python3-slepc4py \
     nano \
-    gmsh
+    gmsh \
+    curl
+
+# Install Node.js and npm
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g @anthropic-ai/claude-code
 
 # Install FEniCS 2019 from pip with compatible sympy version
 RUN pip3 install 'sympy<1.12' fenics-ffc fenics-ufl fenics-fiat fenics-dijitso
