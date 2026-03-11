@@ -63,7 +63,8 @@ WORKDIR /tmp
 # rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install all dependencies in one layer
-RUN apt-get -y install \
+RUN apt-get update && \
+    apt-get -y install \
     python3 python3-pip build-essential \
     cmake git pkg-config \
     libboost-all-dev \
